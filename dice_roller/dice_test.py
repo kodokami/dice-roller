@@ -9,16 +9,13 @@ from dice_roller import Dice
 
 
 class TestDice:
-    dice_set = (4, 6, 8, 10, 12, 20)
-    dice_sides_ids = [
-        'dice_sides=4', 'dice_sides=6', 'dice_sides=8',
-        'dice_sides=10', 'dice_sides=12', 'dice_sides=20'
-    ]
-
     @pytest.mark.parametrize(
         'dice_sides',
-        dice_set,
-        ids=dice_sides_ids
+        (4, 6, 8, 10, 12, 20),
+        ids=[
+            'dice_sides=4', 'dice_sides=6', 'dice_sides=8',
+            'dice_sides=10', 'dice_sides=12', 'dice_sides=20'
+        ]
     )
     def test_dice_roll(self, dice_sides: int):
         """Simple dice rolling test"""
