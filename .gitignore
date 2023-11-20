@@ -1,5 +1,15 @@
+# virtualenv
 /env
+
+# IDE files
 /.idea
+
+# Python and pytest cache
 /__pycache__
-.pytest_cache
 *.pyc
+.pytest_cache
+
+# Build related locations and files
+/build
+/dice_roller.egg-info
+/dist
