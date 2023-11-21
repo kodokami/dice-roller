@@ -9,6 +9,7 @@ import re
 import struct
 from dataclasses import dataclass
 from typing import List
+from time import time
 
 from . import Dice
 
@@ -60,12 +61,21 @@ class Roller:
     def _init_randomness(self):
         """initialize random library with a true random seed"""
         data_format = 'I'
-        random.seed(
-            struct.unpack(
-                data_format,
-                os.urandom(struct.calcsize(data_format))
-            )[0]
-        )
+        try:
+            random.seed(
+                struct.unpack(
+                    data_format,
+                    os.urandom(struct.calcsize(data_format))
+                )[0]
+            )
+        except NotImplementedError as err:
+            # TODO - change this to warn log when logging will be added
+            print(
+                'Warn: os.urandom() not available, using time based seed. '
+                f'Original message: {err}'
+            )
+            random.seed(time())
+
 
     @dataclass(frozen=True)
     class DiceRollToExecute:
