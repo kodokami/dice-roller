@@ -5,5 +5,8 @@ requirements:
 linter:
 	pylint ./dice_roller
 
+test:
+	pytest ./dice_roller
+
 install:
 	python setup.py install

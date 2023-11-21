@@ -3,7 +3,10 @@ Roller class file
 
 Copyright (C) 2023 _kodokami
 """
+import os
+import random
 import re
+import struct
 from dataclasses import dataclass
 from typing import List
 
@@ -30,6 +33,7 @@ class Roller:
 
     def __init__(self, dices: List[str]):
         """dices : list of dices to roll in NdM or NkM pattern"""
+        self._init_randomness()
         self.rolls_to_execute = []
         for dice in dices:
             match = ROLL_PATTERN.match(dice)
@@ -37,7 +41,6 @@ class Roller:
             self.rolls_to_execute.append(
                 self.DiceRollToExecute(dice, [Dice(dice_sides) for _ in range(dice_count)])
             )
-
 
     def roll(self) -> List[DiceRoll]:
         """roll dices"""
@@ -53,6 +56,16 @@ class Roller:
             )
 
         return executed_rolls
+
+    def _init_randomness(self):
+        """initialize random library with a true random seed"""
+        data_format = 'I'
+        random.seed(
+            struct.unpack(
+                data_format,
+                os.urandom(struct.calcsize(data_format))
+            )[0]
+        )
 
     @dataclass(frozen=True)
     class DiceRollToExecute:
