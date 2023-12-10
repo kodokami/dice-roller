@@ -8,12 +8,12 @@ import random
 import re
 import struct
 from dataclasses import dataclass
-from typing import List
 from time import time
+from typing import List
 
 from . import Dice
 
-ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)$')
+ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)\+?([1-9]+[0-9]*)?$')
 
 
 @dataclass(frozen=True)
@@ -36,11 +36,18 @@ class Roller:
         """dices : list of dices to roll in NdM or NkM pattern"""
         self._init_randomness()
         self.rolls_to_execute = []
-        for dice in dices:
-            match = ROLL_PATTERN.match(dice)
-            dice_count, dice_sides = int(match.group(1)), int(match.group(2))
+        for throw in dices:
+            match = ROLL_PATTERN.match(throw)
+            dice_count = int(match.group(1))
+            dice_sides = int(match.group(2))
+            addition = int(match.group(3)) if match.group(3) is not None else 0
+
             self.rolls_to_execute.append(
-                self.DiceRollToExecute(dice, [Dice(dice_sides) for _ in range(dice_count)])
+                self.DiceRollToExecute(
+                    dice_roll=throw,
+                    dices=[Dice(dice_sides) for _ in range(dice_count)],
+                    addition=addition
+                )
             )
 
     def roll(self) -> List[DiceRoll]:
@@ -51,7 +58,7 @@ class Roller:
             executed_rolls.append(
                 DiceRoll(
                     dice_roll=roll.dice_roll,
-                    result=sum(subsequent_dices),
+                    result=sum(subsequent_dices)+roll.addition,
                     subsequent_rolls=subsequent_dices
                 )
             )
@@ -76,8 +83,8 @@ class Roller:
             )
             random.seed(time())
 
-
     @dataclass(frozen=True)
     class DiceRollToExecute:
         dice_roll: str
         dices: List[Dice]
+        addition: int
