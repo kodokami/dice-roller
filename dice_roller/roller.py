@@ -13,7 +13,7 @@ from typing import List
 
 from . import Dice
 
-ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)\+?([1-9]+[0-9]*)?$')
+ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)([\+-][1-9]+[0-9]*)?$')
 
 
 @dataclass(frozen=True)
@@ -38,17 +38,25 @@ class Roller:
         self.rolls_to_execute = []
         for throw in dices:
             match = ROLL_PATTERN.match(throw)
-            dice_count = int(match.group(1))
-            dice_sides = int(match.group(2))
-            addition = int(match.group(3)) if match.group(3) is not None else 0
+            # dices to throw; group1 - dices count, group2 - dice type
+            dices = [Dice(int(match.group(2))) for _ in range(int(match.group(1)))]
 
-            self.rolls_to_execute.append(
-                self.DiceRollToExecute(
-                    dice_roll=throw,
-                    dices=[Dice(dice_sides) for _ in range(dice_count)],
-                    addition=addition
+            if match.group(3) is not None:
+                self.rolls_to_execute.append(
+                    self.DiceRollToExecute(
+                        dice_roll=throw,
+                        dices=dices,
+                        addition=int(match.group(3))
+                    )
                 )
-            )
+            else:
+                self.rolls_to_execute.append(
+                    self.DiceRollToExecute(
+                        dice_roll=throw,
+                        dices=dices
+                    )
+                )
+
 
     def roll(self) -> List[DiceRoll]:
         """roll dices"""
@@ -87,4 +95,4 @@ class Roller:
     class DiceRollToExecute:
         dice_roll: str
         dices: List[Dice]
-        addition: int
+        addition: int = 0

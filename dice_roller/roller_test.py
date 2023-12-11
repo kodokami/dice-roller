@@ -11,8 +11,8 @@ SAMPLE_SINGLE_DICE_ROLL = '1k20'
 SIMULATED_SINGLE_ROLL_VALUE = 3
 
 SAMPLE_MULTIPLE_DICE_ROLLS = ['1k10', '3k6']
-SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION = ['2k20+16', '5k6+2']
-SIMULATED_MULTIPLE_ROLLS = [8, 3, 5, 4, 3, 1, 6]
+SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION = ['2k20+16', '5k6+2', '3k4-2']
+SIMULATED_MULTIPLE_ROLLS = [8, 3, 5, 4, 3, 1, 6, 1, 1, 2]
 
 
 class TestRoller:
@@ -61,6 +61,10 @@ class TestRoller:
         assert result[1].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION[1]
         assert result[1].result == sum(SIMULATED_MULTIPLE_ROLLS[2:7]) + 2
         assert result[1].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[2:7]
+
+        assert result[2].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION[2]
+        assert result[2].result == sum(SIMULATED_MULTIPLE_ROLLS[7:10]) - 2
+        assert result[2].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[7:10]
 
     @patch(
         'dice_roller.roller.os.urandom', Mock(side_effect=NotImplementedError('Simulated error'))

@@ -43,9 +43,9 @@ def _commandmaker():
     roll.add_argument(
         'rolls', action='store', nargs='+', type=_roll,
         help='dice roll to be made, accepted patterns are:'
-             '\n\tNdM+X - where N represents the number of rolls, M the number of dice sides and '\
-             'X is the natural number to add to the throw result, eg. 1d20+5'
-             '\n\tNkM+X - N, M and X like above, eg. 1k12+4',
+             '\n\tNdM+|-X - where N represents the number of rolls, M the number of dice sides and '\
+             'X is the natural number to add | subtract from the throw result, eg. 1d20+5'
+             '\n\tNkM+|-X - N, M and X like above, eg. 1k12-2',
         metavar='ROLL'
     )
     roll.add_argument(
