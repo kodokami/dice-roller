@@ -9,4 +9,7 @@ test:
 	pytest ./dice_roller
 
 install:
-	python setup.py install
+	pip install -U .
+
+uninstall:
+	pip uninstall dice-roller
