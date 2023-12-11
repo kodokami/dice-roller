@@ -18,7 +18,7 @@ from . import (
 from .roller import ROLL_PATTERN
 
 COMMON_ERROR_CODE = 1
-SIGINT_ERROR_CODE = 130
+SIGINT_ERROR_CODE = 2
 
 
 def _roll(value: str) -> str:
@@ -30,8 +30,10 @@ def _roll(value: str) -> str:
 
 def _commandmaker():
     """Console command arguments parser"""
+    usage = 'roll [-s] [-S] [-h] [-V] ROLL [ROLL ...] [-r REPS [REPS ...]]'
     command = ArgumentParser(
         prog=COMMAND_NAME,
+        usage=usage,
         description=DESCRIPTION,
         epilog=COPYRIGHT,
         add_help=False,
@@ -42,10 +44,17 @@ def _commandmaker():
     roll.add_argument(
         'rolls', action='store', nargs='+', type=_roll,
         help='dice roll to be made, accepted patterns are:'
-             '\n\t- NdM+|-X - where N represents the number of rolls, M the number of dice sides ' \
+             '\n\t- NdM+|-X - where N represents the number of rolls, M the number of dice sides '
              'and X is the natural number to add | subtract from the throw result, eg. 1d20+5'
              '\n\t- NkM+|-X - N, M and X like above, eg. 1k12-2',
         metavar='ROLL'
+    )
+    roll.add_argument(
+        '-r', '--reps', '--repetitions', action='store', type=int, nargs='+', default=[],
+        help='the number of times to repeat a corresponding dice roll,\n'
+             f'eg. typing "{COMMAND_NAME} 1k20 3k6 -t 3 4" would result in 3 throws of 1k20 roll '
+             'and 4 throws of 3k6 roll',
+        metavar='REPS', required=False
     )
     roll.add_argument(
         '-s', '--show-rolls', action='store_true', help='shows subsequence rolls'
@@ -68,6 +77,7 @@ def _commandmaker():
 
 
 def _print_results(executed_rolls: List[DiceRoll], show_rolls: bool, show_stats: bool):
+    """Print results to console"""
     for index, roll in enumerate(executed_rolls):
         print(f'{roll.dice_roll} - {roll.result}', end=" " if show_rolls else "\n")
         if show_rolls:
@@ -84,12 +94,38 @@ def _print_results(executed_rolls: List[DiceRoll], show_rolls: bool, show_stats:
                 print(stats_msg)
 
 
+def _calculate_rolls_collection(given_rolls: List[str], given_reps: List[int]) -> List[str]:
+    """Calculate rolls that should be made with given patterns and repetitions"""
+    if len(given_reps) == 0:
+        return given_rolls
+
+    calculated_rolls = []
+    for index, roll in enumerate(given_rolls):
+        if index < len(given_reps):
+            calculated_rolls += [roll for _ in range(given_reps[index])]
+        else:
+            calculated_rolls.append(roll)
+
+    return calculated_rolls
+
+
 def execute():
     """Main execution function"""
     try:
         args = _commandmaker()
+        if len(args.rolls) < len(args.reps):
+            print(
+                f'{COMMAND_NAME}: error: The number of given repetition counts is greater than '
+                'the number of rolls to make'
+            )
+            sys.exit(COMMON_ERROR_CODE)
+
         _print_results(
-            executed_rolls=Roller(args.rolls).roll(),
+            executed_rolls=Roller(
+                _calculate_rolls_collection(
+                    given_rolls=args.rolls, given_reps=args.reps
+                )
+            ).roll(),
             show_rolls=args.show_rolls,
             show_stats=args.show_statistics
         )

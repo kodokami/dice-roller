@@ -109,7 +109,7 @@ class Roller:
         except NotImplementedError as err:
             # TODO - change this to warn log when logging will be added
             print(
-                'Warn: os.urandom() not available, using time based seed. '
+                'warning: os.urandom() not available, using time based seed. '
                 f'Original message: {err}'
             )
             random.seed(time())
