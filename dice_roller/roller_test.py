@@ -142,7 +142,7 @@ class TestRoller:
     @patch('dice_roller.roller.time', Mock(return_value=123))
     def test_class_initialization_with_broken_entropy(self, capsys):
         """Testing if Roller class will initialize without systems entropy"""
-        warning_message = 'Warn: os.urandom() not available, using time based seed. ' \
+        warning_message = 'warning: os.urandom() not available, using time based seed. ' \
                           'Original message: Simulated error\n'
         result = Roller([SAMPLE_SINGLE_DICE_ROLL]).roll()
 
