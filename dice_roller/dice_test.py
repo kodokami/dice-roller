@@ -11,7 +11,7 @@ from dice_roller import Dice
 class TestDice:
     @pytest.mark.parametrize(
         'dice_sides',
-        (4, 6, 8, 10, 12, 20),
+        [4, 6, 8, 10, 12, 20],
         ids=[
             'dice_sides=4', 'dice_sides=6', 'dice_sides=8',
             'dice_sides=10', 'dice_sides=12', 'dice_sides=20'

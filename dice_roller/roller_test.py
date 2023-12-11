@@ -5,6 +5,8 @@ Copyright (C) 2023 _kodokami
 """
 from unittest.mock import Mock, patch
 
+import pytest
+
 from dice_roller import Roller, DiceRoll
 
 SAMPLE_SINGLE_DICE_ROLL = '1k20'
@@ -16,7 +18,48 @@ SIMULATED_MULTIPLE_ROLLS = [8, 3, 5, 4, 3, 1, 6, 1, 1, 2]
 
 
 class TestRoller:
-    # test matching a pattern
+    @pytest.mark.parametrize(
+        'throw_pattern',
+        [
+            # simple throws
+            '1k4', '1k6', '1k8', '1k10', '1k12', '1k20',
+            '1d4', '1d6', '1d8', '1d10', '1d12', '1d20',
+            # multiple throws
+            '4k4', '34k6', '5k8', '53k10', '11k12', '8k20',
+            '4d4', '34d6', '5d8', '53d10', '11d12', '8d20',
+            # multiple throws width addition
+            '12k4+2', '12k6+7', '13k8+8', '12k10+8', '81k12+6', '14k20+9',
+            '12d4+2', '12d6+7', '13d8+8', '12d10+8', '81d12+6', '14d20+9',
+            # multiple throws width subtraction
+            '15k4-6', '14k6-6', '17k8-4', '15k10-3', '16k12-5', '12k20-7',
+            '15d4-6', '14d6-6', '17d8-4', '15d10-3', '16d12-5', '12d20-7',
+            # multiple throws with multiple digit addition or subtraction
+            '15k4-45', '7k6+234', '1k8+46', '35k10-45', '1k12-56', '2k20+64',
+            '15d4-45', '7d6+234', '1d8+46', '35d10-45', '1d12-56', '2d20+64',
+        ]
+    )
+    @patch('dice_roller.roller.random.seed', Mock())
+    def test_allowed_throw_patterns(self, throw_pattern: str):
+        """Testing acceptance of a multiple throw patterns"""
+        try:
+            Roller([throw_pattern])
+        except:
+            pytest.fail(f'{throw_pattern} pattern was not accepted!')
+
+    @pytest.mark.parametrize(
+        'throw_pattern',
+        [
+            'k10', 'd10', 'k3', 'd5', '1k3', '1d5', '1b12', '1x20', '1kk12', '1dd20',
+            '1k20++1', '1d20++1', '1k20++', '1d20--', '1k20+10+12', '1d12-1-2',
+            '1k20k6', '1d12d4'
+        ]
+    )
+    @patch('dice_roller.roller.random.seed', Mock())
+    def test_illegal_throw_patterns(self, throw_pattern: str):
+        """Testing denial of a multiple throw patterns"""
+        with pytest.raises(ValueError) as err:
+            Roller([throw_pattern])
+        assert err.value.args[0] == f'Invalid dice roll pattern "{throw_pattern}".'
 
     @patch('dice_roller.dice.randint', Mock(return_value=SIMULATED_SINGLE_ROLL_VALUE))
     def test_single_dice_roll(self):
@@ -48,6 +91,7 @@ class TestRoller:
 
     @patch('dice_roller.dice.randint', Mock(side_effect=SIMULATED_MULTIPLE_ROLLS))
     def test_rolling_multiple_dices_with_addition(self):
+        """Testing multiple dice rolls with addition and subtraction"""
         result = Roller(SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION).roll()
 
         assert len(result) == len(SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION)

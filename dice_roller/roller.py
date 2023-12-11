@@ -13,7 +13,7 @@ from typing import List
 
 from . import Dice
 
-ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)([\+-][1-9]+[0-9]*)?$')
+ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)([+-][1-9]+[0-9]*)?$')
 
 
 @dataclass(frozen=True)
@@ -38,6 +38,9 @@ class Roller:
         self.rolls_to_execute = []
         for throw in dices:
             match = ROLL_PATTERN.match(throw)
+            if match is None:
+                raise ValueError(f'Invalid dice roll pattern "{throw}".')
+
             # dices to throw; group1 - dices count, group2 - dice type
             dices = [Dice(int(match.group(2))) for _ in range(int(match.group(1)))]
 
@@ -57,7 +60,6 @@ class Roller:
                     )
                 )
 
-
     def roll(self) -> List[DiceRoll]:
         """roll dices"""
         executed_rolls = []
@@ -66,14 +68,15 @@ class Roller:
             executed_rolls.append(
                 DiceRoll(
                     dice_roll=roll.dice_roll,
-                    result=sum(subsequent_dices)+roll.addition,
+                    result=sum(subsequent_dices) + roll.addition,
                     subsequent_rolls=subsequent_dices
                 )
             )
 
         return executed_rolls
 
-    def _init_randomness(self):
+    @staticmethod
+    def _init_randomness():
         """initialize random library with a true random seed"""
         data_format = 'I'
         try:

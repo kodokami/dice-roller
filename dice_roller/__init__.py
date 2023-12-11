@@ -7,7 +7,7 @@ from .dice import Dice
 from .roller import Roller, DiceRoll
 
 __author__ = '_kodokami <kodokami@protonmail.com>'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 NAME = 'dice-roller'
 COMMAND_NAME = 'roll'
