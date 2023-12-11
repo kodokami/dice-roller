@@ -9,6 +9,8 @@ from dice_roller import Dice
 
 
 class TestDice:
+    """Dice test class"""
+
     @pytest.mark.parametrize(
         'dice_sides',
         [4, 6, 8, 10, 12, 20],

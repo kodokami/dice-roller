@@ -18,6 +18,8 @@ SIMULATED_MULTIPLE_ROLLS = [8, 3, 5, 4, 3, 1, 6, 1, 1, 2]
 
 
 class TestRoller:
+    """Dice roller test class"""
+
     @pytest.mark.parametrize(
         'throw_pattern',
         [
@@ -43,7 +45,7 @@ class TestRoller:
         """Testing acceptance of a multiple throw patterns"""
         try:
             Roller([throw_pattern])
-        except:
+        except ValueError:
             pytest.fail(f'{throw_pattern} pattern was not accepted!')
 
     @pytest.mark.parametrize(
@@ -66,11 +68,15 @@ class TestRoller:
         """Testing single dice roll with Roller class"""
         result = Roller([SAMPLE_SINGLE_DICE_ROLL]).roll()
 
+        # 1k20
         assert len(result) == 1
         assert isinstance(result[0], DiceRoll)
         assert result[0].dice_roll == SAMPLE_SINGLE_DICE_ROLL
         assert result[0].result == SIMULATED_SINGLE_ROLL_VALUE
         assert result[0].subsequent_rolls == [SIMULATED_SINGLE_ROLL_VALUE]
+        assert result[0].roll_stats.min == 1
+        assert result[0].roll_stats.max == 20
+        assert result[0].roll_stats.avg == 11
 
     @patch('dice_roller.dice.randint', Mock(side_effect=SIMULATED_MULTIPLE_ROLLS))
     def test_rolling_multiple_dices(self):
@@ -81,13 +87,21 @@ class TestRoller:
         for roll in result:
             assert isinstance(roll, DiceRoll)
 
+        # 1k10
         assert result[0].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS[0]
         assert result[0].result == SIMULATED_MULTIPLE_ROLLS[0]
         assert result[0].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[:1]
+        assert result[0].roll_stats.min == 1
+        assert result[0].roll_stats.max == 10
+        assert result[0].roll_stats.avg == 6
 
+        # 3k6
         assert result[1].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS[1]
         assert result[1].result == sum(SIMULATED_MULTIPLE_ROLLS[1:4])
         assert result[1].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[1:4]
+        assert result[1].roll_stats.min == 3
+        assert result[1].roll_stats.max == 18
+        assert result[1].roll_stats.avg == 11
 
     @patch('dice_roller.dice.randint', Mock(side_effect=SIMULATED_MULTIPLE_ROLLS))
     def test_rolling_multiple_dices_with_addition(self):
@@ -98,17 +112,29 @@ class TestRoller:
         for roll in result:
             assert isinstance(roll, DiceRoll)
 
+        # 2k20+16
         assert result[0].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION[0]
         assert result[0].result == sum(SIMULATED_MULTIPLE_ROLLS[:2]) + 16
         assert result[0].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[:2]
+        assert result[0].roll_stats.min == 18
+        assert result[0].roll_stats.max == 56
+        assert result[0].roll_stats.avg == 37
 
+        # 5k6+2
         assert result[1].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION[1]
         assert result[1].result == sum(SIMULATED_MULTIPLE_ROLLS[2:7]) + 2
         assert result[1].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[2:7]
+        assert result[1].roll_stats.min == 7
+        assert result[1].roll_stats.max == 32
+        assert result[1].roll_stats.avg == 20
 
+        # 3k4-2
         assert result[2].dice_roll == SAMPLE_MULTIPLE_DICE_ROLLS_WITH_ADDITION[2]
         assert result[2].result == sum(SIMULATED_MULTIPLE_ROLLS[7:10]) - 2
         assert result[2].subsequent_rolls == SIMULATED_MULTIPLE_ROLLS[7:10]
+        assert result[2].roll_stats.min == 1
+        assert result[2].roll_stats.max == 10
+        assert result[2].roll_stats.avg == 6
 
     @patch(
         'dice_roller.roller.os.urandom', Mock(side_effect=NotImplementedError('Simulated error'))

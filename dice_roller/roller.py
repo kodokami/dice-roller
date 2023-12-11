@@ -8,6 +8,7 @@ import random
 import re
 import struct
 from dataclasses import dataclass
+from math import ceil as ceiling
 from time import time
 from typing import List
 
@@ -17,11 +18,20 @@ ROLL_PATTERN = re.compile('^([1-9][0-9]*)[kd](4|6|8|10|12|20)([+-][1-9]+[0-9]*)?
 
 
 @dataclass(frozen=True)
+class DiceRollStats:
+    """Class representing the dice roll statistics"""
+    min: int
+    max: int
+    avg: int
+
+
+@dataclass(frozen=True)
 class DiceRoll:
-    """Class representing a dice roll"""
+    """Class representing a thrown dice roll"""
     dice_roll: str
     result: int
     subsequent_rolls: List[int]
+    roll_stats: DiceRollStats
 
     def __post_init__(self):
         """Data validation"""
@@ -69,7 +79,17 @@ class Roller:
                 DiceRoll(
                     dice_roll=roll.dice_roll,
                     result=sum(subsequent_dices) + roll.addition,
-                    subsequent_rolls=subsequent_dices
+                    subsequent_rolls=subsequent_dices,
+                    roll_stats=DiceRollStats(
+                        min=len(roll.dices) + roll.addition,
+                        max=len(roll.dices) * roll.dices[0].sides_count + roll.addition,
+                        avg=ceiling(
+                            # pylint: disable=C0301
+                            # all allowed dice types have even sides count, that why we are adding 0.5 to
+                            # the statistically average throw, eg. for k20 dice an average throw would be 10.5
+                            len(roll.dices) * (roll.dices[0].sides_count / 2 + 0.5)
+                        ) + roll.addition
+                    )
                 )
             )
 
@@ -96,6 +116,7 @@ class Roller:
 
     @dataclass(frozen=True)
     class DiceRollToExecute:
+        """Class representing a dice roll that awaits to be thrown"""
         dice_roll: str
         dices: List[Dice]
         addition: int = 0
