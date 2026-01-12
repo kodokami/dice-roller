@@ -3,10 +3,10 @@ requirements:
 	pip install -r ./requirements.txt
 
 linter:
-	pylint ./dice_roller
+	python -m pylint ./dice_roller
 
 test:
-	pytest ./dice_roller
+	python -m pytest ./tests --cov=dice_roller
 
 install:
 	pip install -U .

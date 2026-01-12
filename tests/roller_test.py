@@ -18,7 +18,7 @@ SIMULATED_MULTIPLE_ROLLS = [8, 3, 5, 4, 3, 1, 6, 1, 1, 2]
 
 
 class TestRoller:
-    """Dice roller test class"""
+    """Dice roller tests class"""
 
     @pytest.mark.parametrize(
         'throw_pattern',

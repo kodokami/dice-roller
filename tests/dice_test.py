@@ -9,7 +9,7 @@ from dice_roller import Dice
 
 
 class TestDice:
-    """Dice test class"""
+    """Dice tests class"""
 
     @pytest.mark.parametrize(
         'dice_sides',
@@ -20,7 +20,7 @@ class TestDice:
         ]
     )
     def test_dice_roll(self, dice_sides: int):
-        """Simple dice rolling test"""
+        """Simple dice rolling tests"""
         dice = Dice(dice_sides)
         roll = dice.roll()
 

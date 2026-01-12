@@ -12,6 +12,9 @@
 *.pyc
 .pytest_cache
 
+# pytest-cov files
+.coverage
+
 # Build related locations and files
 /build
 /dice_roller.egg-info

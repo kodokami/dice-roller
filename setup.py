@@ -13,7 +13,7 @@ setup(
     author_email='kodokami@protonmail.com',
     description=DESCRIPTION,
     license='MIT License',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests', 'tests.*']),
     python_requires='>=3.12',
     platforms=['Unix'],
     entry_points={
