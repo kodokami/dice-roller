@@ -52,7 +52,7 @@ def _commandmaker():
     roll.add_argument(
         '-r', '--reps', '--repetitions', action='store', type=int, nargs='+', default=[],
         help='the number of times to repeat a corresponding dice roll,\n'
-             f'eg. typing "{COMMAND_NAME} 1k20 3k6 -t 3 4" would result in 3 throws of 1k20 roll '
+             f'eg. typing "{COMMAND_NAME} 1k20 3k6 -r 3 4" would result in 3 throws of 1k20 roll '
              'and 4 throws of 3k6 roll',
         metavar='REPS', required=False
     )
